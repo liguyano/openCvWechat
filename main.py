@@ -416,7 +416,7 @@ def detect_chat_input_box(img):
     horizontals = []
 
     if lines is not None:
-        for line in lines[:, 0]:
+        for line in lines.reshape(-1, 4):
             x1, y1, x2, y2 = map(int, line)
 
             # 只要水平线

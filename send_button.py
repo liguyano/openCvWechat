@@ -225,12 +225,9 @@ def detect_green_send_button(img, debug=False):
     """
     h, w = img.shape[:2]
 
-    # 发送按钮一般在聊天窗口下半部分
-    roi_top = int(h * 0.45)
-    roi_left = 0
-    roi = img[roi_top:h, roi_left:w]
-
-    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+    # 微信窗口可能位于屏幕任意位置，不能按整块屏幕的右下角裁剪。
+    # 后续通过按钮形状及左侧语音图标排除聊天气泡等绿色区域。
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # 绿色按钮范围
     lower_green = np.array([35, 60, 80])
@@ -258,20 +255,20 @@ def detect_green_send_button(img, debug=False):
     for cnt in contours:
         x, y, bw, bh = cv2.boundingRect(cnt)
 
-        real_x = x + roi_left
-        real_y = y + roi_top
+        real_x = x
+        real_y = y
 
         area = bw * bh
         aspect = bw / max(bh, 1)
 
         # 发送按钮通常是一个小横向矩形
-        if bw < 35 or bw > 160:
+        if bw < 45 or bw > 110:
             continue
 
-        if bh < 18 or bh > 70:
+        if bh < 18 or bh > 55:
             continue
 
-        if aspect < 1.2 or aspect > 6.0:
+        if aspect < 1.5 or aspect > 4.5:
             continue
 
         if area < 500:
@@ -305,7 +302,8 @@ def detect_green_send_button(img, debug=False):
             continue
 
         # 发送按钮一般偏右下
-        score = real_y * 3 + real_x * 1.2 + area
+        # 越靠右下越优先；面积只作为次要因素。
+        score = real_y * 8 + real_x * 3 + area * 0.1
 
         candidates.append((score, real_x, real_y, bw, bh))
 

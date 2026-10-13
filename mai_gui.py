@@ -23,12 +23,14 @@ Tkinter 图形界面版：
 """
 
 import datetime as _dt
+import contextlib
+import io
 import threading
 import traceback
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, ttk
 
-import main
+import main as sender_module
 
 
 class MaiGuiApp:
@@ -316,7 +318,18 @@ class MaiGuiApp:
 
     def _send_worker(self, config: dict, source: str):
         try:
-            ok = main.send_message_to_fixed_friend(**config)
+            class GuiLogWriter(io.TextIOBase):
+                def write(inner, text):
+                    text = text.rstrip("\n")
+                    if text:
+                        self.root.after(0, lambda value=text: self.log(value))
+                    return len(text)
+
+                def flush(inner):
+                    return None
+
+            with contextlib.redirect_stdout(GuiLogWriter()), contextlib.redirect_stderr(GuiLogWriter()):
+                ok = sender_module.send_message_to_fixed_friend(**config)
 
             if ok:
                 self.root.after(0, lambda: self._send_finished(True, f"{source}完成。"))

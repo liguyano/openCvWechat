@@ -5,3 +5,5 @@ opencv_python==5.0.0.93
 pyautogui==0.9.54
 pyperclip==1.11.0
 tkcalendar==1.6.1
+onnxruntime
+rapidocr==3.9.1

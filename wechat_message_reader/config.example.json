@@ -1,0 +1,6 @@
+{
+  "api_base": "https://ws-lq4znjybupgtwwds.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
+  "api_key": "",
+  "model": "qwen3.8-max",
+  "timeout": 60
+}
